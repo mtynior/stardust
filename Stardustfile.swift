@@ -6,4 +6,4 @@ stardust.task("default") {
     print("Hello from Stardustfile!!!!!!!")
 }
 
-run()
+stardust.run()

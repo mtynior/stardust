@@ -1,24 +1,20 @@
 import Foundation
 
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin.C
-#endif
+public final class Stardust {
 
-private final class StardustRunner {
-    
-    let version = "0.0.1"
+    public var tasks: [Task] = []
 
-    static let shared = StardustRunner()
+    public init() { }
 
-    let dsl: StardustDSL = StardustDSL()
+    public func task(_ name: String, handler: @escaping ( () throws -> Void)) {
+        let task = Task(name: name, handler: handler)
 
-    private init() { }
+        tasks.append(task)
+    }
 
-    fileprivate func run() {
-          do {
-            let taskName = CommandLine.arguments[1]
+    public func run() {
+        do {
+            let taskName = CommandLine.arguments[1] 
             try executeTask(name: taskName) 
         } catch let error {
             print(error)
@@ -26,25 +22,16 @@ private final class StardustRunner {
         }
     }
 
-
     func executeTask(name: String) throws {
         
-        guard let task = dsl.tasks.filter({ $0.name == name }).first else {
-            let availableTasks = dsl.tasks.map({ $0.name })
+        guard let task = tasks.filter({ $0.name == name }).first else {
+            let availableTasks = tasks.map({ $0.name })
             print("Could not find task named: '\(name)'")
-            print("Abailable tasks:\n\(availableTasks)")
+            print("Available tasks:\n\(availableTasks)")
             return 
         }
 
         try task.handler()
     }
 
-}
-
-public func Stardust() -> StardustDSL {
-    return StardustRunner.shared.dsl
-}
-
-public func run() {
-    StardustRunner.shared.run()
 }
